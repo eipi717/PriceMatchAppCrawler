@@ -88,12 +88,6 @@ def extract_food_basics(web_driver: WebDriver):
 
             list_of_products, list_of_prices, list_of_history_prices = extract_product_information(products=products, category=category)
 
-            print(list_of_products)
-
-            print(list_of_prices)
-
-            print(list_of_history_prices)
-
             http_utils.create_products(list_of_products=list_of_products)
 
             http_utils.create_prices(list_of_prices=list_of_prices)

@@ -46,14 +46,6 @@ def get_ai_response_for_product_name_and_category(products_name_with_brand: list
 
     print(response)
 
-    # category = response.split(",")[0]
-    #
-    # product_name = response.split(",")[1].strip()
-    #
-    # print(category, product_name)
-    #
-    # return category, product_name
-
 
 def call_local_gemma(list_of_product: str):
     response = requests.post(
@@ -61,56 +53,13 @@ def call_local_gemma(list_of_product: str):
         json={
             "model": GEMMA_MODEL,
             "prompt": list_of_product,
+            # We want one-time output
             "stream": False,
+            # System prompt - setting rules
             "system": get_system_prompt_for_product_name_standardization()
         })
     return response.json()['response']
 
 
-def test_():
-    import pandas as pd
-    df = pd.read_csv('../PriceMatch_Backup_data/Product.csv')
-    product_name_list = df['product_name'].tolist()
-
-    portion: int = len(product_name_list) // 5
-
-    for i in range(portion + 1):
-        start = 5 * i
-        product_name_sub_list = product_name_list[start: min(start + 5, len(product_name_list))]
-        print(len(product_name_sub_list))
-        result = call_local_gemma(list_of_product=str(product_name_sub_list))
-
-        print(result)
-
-    # result = call_local_gemma(str(product_name_list[:100]))
-
-    # print(result)
-
-
 if __name__ == '__main__':
-    test_()
-
-    a = ['Apple', 'Orange', 'Banana', 'Grape', 'Pear', 'Red Grapefruit', 'Kiwis', 'Dried Turkish Apricots', 'Plums',
-         "D'Anjou Pears", 'Finger Hot Hot Peppers', 'Cilantro', 'Green Onion', 'Organics Whole Cremini Mushrooms',
-         'Tomato On The Vine Red', 'Greenhouse Peppers', 'Honeydew Melon', 'Organic Dates', 'Mint', 'Fenugreek',
-         'Grape Tomato', 'Yellow Onions', 'Dried Turkish Figs', 'Indian Eggplant', 'Ataulfo Mango', 'Gala Apples',
-         'Red Peppers', 'Rapini', 'Bosc Pears', 'Red Thai Hot Peppers', 'Mini Cucumbers', 'Organic Strawberries',
-         'Mandarin Oranges', 'Walnuts', 'Okra', 'Garlic Bulbs', 'Pitted Honey Dates', 'White Mushrooms',
-         'Beyond Sausage Hot Italian', 'Angus Burger', 'Original Bratwurst Sausage', 'Sirloin Beef Burger',
-         'Lean Beef Burgers', 'Hot Italian Sausage', 'Original Breakfast Sausage', 'Maple Breakfast Sausage',
-         'Goat Stew Bone In', 'Red Hots Original Hot Dogs', 'Thick & Juicy™ Beef Burgers',
-         'Thick & Juicy™ Chicken Burgers', 'Natural Top Dogs Original Hot Dogs', 'Honey Garlic Sausage',
-         'Original Breakfast Sausage Rounds', 'Brown Sugar & Honey Breakfast Sausage', 'Lean Ground Pork',
-         'Thick & Juicy™ Prime Rib Beef Burger', 'Wagyu Beef Burgers', 'Sirloin Tip Steak', 'Sausage Mild Italian',
-         'Chicken Leg with Bone', 'Mild Italian Sausage', 'Cheddar Hot Dogs', 'Breakfast Sausage',
-         'Thick & Juicy™ Sirloin Beef Burgers ', 'Umami Wagyu Burgers', 'Free From Angus Beef Burger', 'Garlic & Herb',
-         'Buffalo-Style Chicken Breast Strips', 'Cheese', 'Lunch Mate Bologna Lunch Kit', 'Jalapeno',
-         'Semi-Soft Ripened Cheese Mini Gouda Taste 24% M.F.', 'Chicken Breast Strips',
-         'Lunch Mate Two Cheese Pizza Lunch Kit', 'Dry Cured Italian Dry Salami Snack Kit',
-         'Dry Cured Genoa Salami Snack Kit', 'Swiss', 'Light', 'Original (6 x 20g)', 'Lunch Mate Turkey Lunch Kit',
-         'Italian-Style Chicken Breast Strips', 'Lunch Mate Ham Lunch Kit', 'Turkey Breast Strips', 'Cheese Dippers',
-         'Hardwood Smoked Turkey Breast Snack Kit', 'Lunch Mate Pizza Pepperoni Lunch Kit',
-         'Lunch Mate Hot Dogs Lunch Kit', 'Creamy Potato Salad', 'Fettuccine', 'Rainbow Cheese Tortellini',
-         'Macaroni Salad', 'Creamy Green Coleslaw', 'Cheese and Bacon Tortellini', 'Macaroni & Cheese Salad',
-         'Lasagna Sheets Pasta', 'Linguine', 'Beef Tortellini', 'Cheese & Spinach Ravioli', 'Potato & Egg Salad',
-         'Cooked Shrimp']
+    print("Test")

@@ -26,6 +26,6 @@ def create_prices(list_of_prices: list):
 
 
 def create_history_prices(list_of_prices: list):
-    response = requests.post('http://127.0.0.1:8080/api/v1/historicalPrice/createHistoricalPrice', json=list_of_prices)
+    response = requests.post(f'{SERVER_DOMAIN}/api/v1/historicalPrice/createHistoricalPrice', json=list_of_prices)
 
     print(f"History Price's API: {response.status_code}")
