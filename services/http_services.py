@@ -22,10 +22,12 @@ def create_products(list_of_products: list):
 def create_prices(list_of_prices: list):
     response = requests.post(f'{SERVER_DOMAIN}/api/v1/prices/createPrice', json=list_of_prices)
 
+    print(list_of_prices)
     print(f"Price's API: {response.status_code}")
 
 
 def create_history_prices(list_of_prices: list):
     response = requests.post(f'{SERVER_DOMAIN}/api/v1/historicalPrice/createHistoricalPrice', json=list_of_prices)
 
+    print(list_of_prices)
     print(f"History Price's API: {response.status_code}")

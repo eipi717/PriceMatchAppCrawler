@@ -1,4 +1,4 @@
-from utils.date_time_utils import to_date, get_flyers_wednesday_start_date, get_flyers_wednesday_end_date
+from utils.date_time_utils import to_date, get_flyers_start_date_thursday, get_flyers_end_date_wednesday
 
 
 def get_product_dict(product_name: str, product_category: str) -> dict:
@@ -16,8 +16,8 @@ def get_price_dict(product_name: str, store_name: str, price_per_unit: float, pr
         'size': size,
         'pricePerUnit': price_per_unit,
         'unit': unit,
-        'startDate': to_date(get_flyers_wednesday_start_date()),
-        'endDate': to_date(get_flyers_wednesday_end_date())
+        'startDate': to_date(get_flyers_start_date_thursday()),
+        'endDate': to_date(get_flyers_end_date_wednesday())
     }
 
 
@@ -28,5 +28,5 @@ def get_history_price_dict(product_name: str, store_name:str, price: float, pric
         "price": price,
         "pricePerUnit": price_per_unit,
         "unit": unit,
-        "dateOfPrice": to_date(get_flyers_wednesday_start_date())
+        "dateOfPrice": to_date(get_flyers_start_date_thursday())
     }
