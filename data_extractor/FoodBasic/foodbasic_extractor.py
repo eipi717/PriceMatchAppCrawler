@@ -40,17 +40,21 @@ def extract_product_information(products: list, category: str) -> tuple[list[dic
 
     for product in products:
         product_name = product.find_element(By.CLASS_NAME, 'head__title').text
-        product_name = re.sub("'[a-z]", "", product_name, flags=re.IGNORECASE)
+        product_name = re.sub(r"'s|\s*'", "", product_name)
         product_names.append(product_name)
+
+        product_image_outer = product.find_element(By.CLASS_NAME, 'pt__visual')
+        product_image = product_image_outer.find_element(By.TAG_NAME, 'picture').find_element(By.TAG_NAME, 'img').get_attribute('src')
+
 
     # put all product names to gen AI once only
     # Convert the string list into list of string by converting to valid json
     # TODO: Try catch --> if error -> re-gen again.
-    processed_product_names = generative_ai_services.call_local_gemma(str(product_names))
-    print(processed_product_names)
-    processed_product_names_json_string = processed_product_names.replace("'", '"')
-    print(processed_product_names_json_string, file=open('/Users/nicholasho/Downloads/Non-work/priceMatchAppCrawler/output.txt', 'a'))
-    processed_product_names = json.loads(processed_product_names_json_string)
+        # Process product names with Generative AI
+    processed_product_names = generative_ai_services.call_local_gemma(json.dumps(product_names))
+    if not processed_product_names:
+        print("No processed product names returned.")
+        return product_list, price_list, history_price_list
 
     for product, processed_name in zip(products, processed_product_names):
         price_outer = product.find_element(By.CSS_SELECTOR, '.pricing__sale-price.promo-price')
@@ -78,11 +82,10 @@ def extract_product_information(products: list, category: str) -> tuple[list[dic
         except NoSuchElementException:
             size = ""
 
-        product_list.append(get_product_dict(product_name=product_name, product_category=category))
+        product_list.append(get_product_dict(product_name=product_name, product_category=category, product_image=product_image))
         price_list.append(get_price_dict(product_name=product_name, store_name="FoodBasics", price=price, price_per_unit=price_per_unit, unit=unit, size=size))
-        history_price_list.append(get_history_price_dict(product_name=product_name, store_name="FoodBasics", price=price, unit=unit, price_per_unit=price_per_unit, date_of_price="2024-04-17", created_time="2024-04-17 23:00:13"))
+        history_price_list.append(get_history_price_dict(product_name=product_name, store_name="FoodBasics", price=price, unit=unit, price_per_unit=price_per_unit))
 
-    print(product_list)
     return product_list, price_list, history_price_list
 
 
@@ -99,7 +102,7 @@ def extract_food_basics(web_driver: WebDriver):
             category = 'DELI_AND_PREPARED_MEALS'
 
         for page_number in range(1, number_of_pages + 1):
-            driver.get(url.format(page_number))
+            web_driver.get(url.format(page_number))
 
             sleep_in_random_time()
 
