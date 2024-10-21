@@ -14,8 +14,10 @@ load_dotenv()
 
 
 def get_urls() -> dict:
-    categories = ['FRUIT_AND_VEGETABLES', 'MEAT', 'DELI', 'FISH_AND_SEAFOOD', 'DAIRY_AND_EGGS', 'BEVERAGES', 'HOUSEHOLD_AND_CLEANING']
-    return {category: os.getenv(f'FOOD_BASICS_{category}') for category in categories}
+    categories = ['FRUIT_AND_VEGETABLES', 'MEAT', 'DELI_AND_PREPARED_MEALS', 'FISH_AND_SEAFOOD', 'DAIRY_AND_EGGS',
+                  'BEVERAGES', 'BAKERY', 'HOUSEHOLD', 'FROZEN_FOODS', 'PANTRY', 'SNACKS', 'PERSONAL_CARE_AND_BEAUTY',
+                  'BABY']
+    return {category: os.getenv(f'FOODBASICS_{category}') for category in categories}
 
 
 def navigate_to_items_page(web_driver: WebDriver, url: str):
@@ -31,7 +33,8 @@ def get_number_of_pages(web_driver: WebDriver) -> int:
 
 
 def get_products(web_driver: WebDriver) -> list:
-    return web_driver.find_elements(By.CSS_SELECTOR, '.default-product-tile.tile-product.item-addToCart.tile-product--effective-date')
+    return web_driver.find_elements(By.CSS_SELECTOR,
+                                    '.default-product-tile.tile-product.item-addToCart.tile-product--effective-date')
 
 
 def extract_product_information(products: list, category: str) -> tuple[list[dict], list[dict], list[dict]]:
@@ -44,13 +47,14 @@ def extract_product_information(products: list, category: str) -> tuple[list[dic
         product_names.append(product_name)
 
         product_image_outer = product.find_element(By.CLASS_NAME, 'pt__visual')
-        product_image = product_image_outer.find_element(By.TAG_NAME, 'picture').find_element(By.TAG_NAME, 'img').get_attribute('src')
-
+        product_image = product_image_outer.find_element(By.TAG_NAME, 'picture').find_element(By.TAG_NAME,
+                                                                                              'img').get_attribute(
+            'src')
 
     # put all product names to gen AI once only
     # Convert the string list into list of string by converting to valid json
     # TODO: Try catch --> if error -> re-gen again.
-        # Process product names with Generative AI
+    # Process product names with Generative AI
     processed_product_names = generative_ai_services.call_local_gemma(json.dumps(product_names))
     if not processed_product_names:
         print("No processed product names returned.")
@@ -82,9 +86,13 @@ def extract_product_information(products: list, category: str) -> tuple[list[dic
         except NoSuchElementException:
             size = ""
 
-        product_list.append(get_product_dict(product_name=product_name, product_category=category, product_image=product_image))
-        price_list.append(get_price_dict(product_name=product_name, store_name="FoodBasics", price=price, price_per_unit=price_per_unit, unit=unit, size=size))
-        history_price_list.append(get_history_price_dict(product_name=product_name, store_name="FoodBasics", price=price, unit=unit, price_per_unit=price_per_unit))
+        product_list.append(
+            get_product_dict(product_name=product_name, product_category=category, product_image=product_image))
+        price_list.append(get_price_dict(product_name=product_name, store_name="FoodBasics", price=price,
+                                         price_per_unit=price_per_unit, unit=unit, size=size))
+        history_price_list.append(
+            get_history_price_dict(product_name=product_name, store_name="FoodBasics", price=price, unit=unit,
+                                   price_per_unit=price_per_unit))
 
     return product_list, price_list, history_price_list
 
@@ -108,7 +116,8 @@ def extract_food_basics(web_driver: WebDriver):
 
             products = get_products(web_driver=web_driver)
 
-            list_of_products, list_of_prices, list_of_history_prices = extract_product_information(products=products, category=category)
+            list_of_products, list_of_prices, list_of_history_prices = extract_product_information(products=products,
+                                                                                                   category=category)
 
             http_services.create_products(list_of_products=list_of_products)
 

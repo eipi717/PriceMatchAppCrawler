@@ -1,6 +1,7 @@
 import os
 import re
 
+from selenium.common import NoSuchElementException
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 from dotenv import load_dotenv
@@ -13,8 +14,10 @@ load_dotenv()
 
 
 def get_urls() -> dict:
-    categories = ['FRUIT_AND_VEGETABLES', 'MEAT', 'DELI', 'PREPARED_MEALS', 'FISH_AND_SEAFOOD', 'DAIRY_AND_EGGS', 'BEVERAGES', 'HOUSEHOLD_AND_CLEANING']
-    return {category: os.getenv(f'NO_FRILLS_{category}') for category in categories}
+    categories = ['FRUIT_AND_VEGETABLES', 'MEAT', 'DELI', 'FISH_AND_SEAFOOD', 'DAIRY_AND_EGGS', 'BEVERAGES',
+                  'PREPARED_MEALS', 'BAKERY', 'BEVERAGES', 'FROZEN_FOODS', 'PANTRY', 'SNACKS',
+                  'OTHERS', 'HOME', 'HOUSEHOLD', 'PERSONAL_CARE_AND_BEAUTY', 'BABY', 'NATURAL_AND_ORGANIC']
+    return {category: os.getenv(f'NOFRILLS_{category}') for category in categories}
 
 
 def navigate_to_items_page(web_driver: WebDriver, url: str):
@@ -54,8 +57,10 @@ def extract_product_information(products: list, category: str) -> tuple[list[dic
 
     # zip function gives tuple of the element: tuple(element_of_products, element_of_processed_product_names)
     for product, processed_name in zip(products, processed_product_names):
-        price_outer = product.find_element(By.CSS_SELECTOR, '.chakra-text.css-0')
-        price = price_outer.find_elements(By.CSS_SELECTOR, '.chakra-text.css-o93gbd')[0].text.split("$")[-1].split(" ")[0]
+        try:
+            price = product.find_element(By.CSS_SELECTOR, '.chakra-text.css-o93gbd').text.split("$")[-1].split(" ")[0]
+        except NoSuchElementException:
+            price = product.find_element(By.CSS_SELECTOR, '.chakra-text.css-pwnbcb').text.split("$")[-1].split(" ")[0]
         product_image = product.find_element(By.TAG_NAME, 'img').get_attribute('src')
 
         price_per_unit_outer = product.find_element(By.CSS_SELECTOR, '.chakra-text.css-1yftjin')
@@ -64,8 +69,9 @@ def extract_product_information(products: list, category: str) -> tuple[list[dic
             price_per_unit = price_per_unit_outer.text.split(",")[1].split("/")[0].replace("$", "").replace("ea", price).strip()
             unit = price_per_unit_outer.text.split(",")[1].split("/")[1]
         else:
-            unit = size = price_per_unit_outer.text.split(" ")[-1].split("/")[-1]
-            price_per_unit = price_per_unit_outer.text.split(" ")[-1].split("/")[0].replace("$", "").replace("ea", price).strip()
+            unit = price_per_unit_outer.text.split(" ")[-1]
+            size = price_per_unit_outer.text.split(" ")[0]
+            price_per_unit = price
 
         # Use the processed product name here
         product_list.append(get_product_dict(product_name=processed_name, product_category=category, product_image=product_image))
