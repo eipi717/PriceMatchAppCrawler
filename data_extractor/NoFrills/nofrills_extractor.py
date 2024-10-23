@@ -67,7 +67,10 @@ def extract_product_information(products: list, category: str) -> tuple[list[dic
         if "," in price_per_unit_outer.text:
             size = price_per_unit_outer.text.split(",")[0]
             price_per_unit = price_per_unit_outer.text.split(",")[1].split("/")[0].replace("$", "").replace("ea", price).strip()
-            unit = price_per_unit_outer.text.split(",")[1].split("/")[1]
+            try:
+                unit = price_per_unit_outer.text.split(",")[1].split("/")[1]
+            except IndexError:
+                unit = price_per_unit_outer.text.split(" ")[-1]
         else:
             unit = price_per_unit_outer.text.split(" ")[-1]
             size = price_per_unit_outer.text.split(" ")[0]
