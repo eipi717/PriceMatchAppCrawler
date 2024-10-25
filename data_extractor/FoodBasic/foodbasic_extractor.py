@@ -55,44 +55,45 @@ def extract_product_information(products: list, category: str) -> tuple[list[dic
     # Convert the string list into list of string by converting to valid json
     # TODO: Try catch --> if error -> re-gen again.
     # Process product names with Generative AI
-    processed_product_names = generative_ai_services.call_local_gemma(json.dumps(product_names))
-    if not processed_product_names:
-        print("No processed product names returned.")
-        return product_list, price_list, history_price_list
+    if len(product_names) != 0:
+        processed_product_names = generative_ai_services.call_local_gemma(json.dumps(product_names))
+        if not processed_product_names:
+            print("No processed product names returned.")
+            return product_list, price_list, history_price_list
 
-    for product, processed_name in zip(products, processed_product_names):
-        price_outer = product.find_element(By.CSS_SELECTOR, '.pricing__sale-price.promo-price')
+        for product, processed_name in zip(products, processed_product_names):
+            price_outer = product.find_element(By.CSS_SELECTOR, '.pricing__sale-price.promo-price')
 
-        try:
-            price: str = price_outer.find_elements(By.CLASS_NAME, 'price-update')[-1].text
-        except NoSuchElementException:
-            price: str = price_outer.find_elements(By.TAG_NAME, 'span')[-1].text
+            try:
+                price: str = price_outer.find_elements(By.CLASS_NAME, 'price-update')[-1].text
+            except NoSuchElementException:
+                price: str = price_outer.find_elements(By.TAG_NAME, 'span')[-1].text
 
-        price = price.split("$")[-1].replace(" ", "")
+            price = price.split("$")[-1].replace(" ", "")
 
-        price_per_unit_outer = product.find_element(By.CLASS_NAME, 'pricing__secondary-price')
+            price_per_unit_outer = product.find_element(By.CLASS_NAME, 'pricing__secondary-price')
 
-        price_per_unit_and_unit: str = price_per_unit_outer.find_elements(By.TAG_NAME, 'span')[-1].text
+            price_per_unit_and_unit: str = price_per_unit_outer.find_elements(By.TAG_NAME, 'span')[-1].text
 
-        price_per_unit = price_per_unit_and_unit.replace(" ", "").split("/")[0].replace("$", "")
+            price_per_unit = price_per_unit_and_unit.replace(" ", "").split("/")[0].replace("$", "")
 
-        unit = price_per_unit_and_unit.split("/")[-1].replace(" ", "").replace(".", "")
+            unit = price_per_unit_and_unit.split("/")[-1].replace(" ", "").replace(".", "")
 
-        product_name = product.find_element(By.CLASS_NAME, 'head__title').text
+            product_name = product.find_element(By.CLASS_NAME, 'head__title').text
 
-        try:
-            size: str = product.find_element(By.CLASS_NAME, 'head__unit-details').text
-            size = size.replace(" ", "")
-        except NoSuchElementException:
-            size = ""
+            try:
+                size: str = product.find_element(By.CLASS_NAME, 'head__unit-details').text
+                size = size.replace(" ", "")
+            except NoSuchElementException:
+                size = ""
 
-        product_list.append(
-            get_product_dict(product_name=product_name, product_category=category, product_image=product_image))
-        price_list.append(get_price_dict(product_name=product_name, store_name="FoodBasics", price=price,
-                                         price_per_unit=price_per_unit, unit=unit, size=size))
-        history_price_list.append(
-            get_history_price_dict(product_name=product_name, store_name="FoodBasics", price=price, unit=unit,
-                                   price_per_unit=price_per_unit))
+            product_list.append(
+                get_product_dict(product_name=product_name, product_category=category, product_image=product_image))
+            price_list.append(get_price_dict(product_name=product_name, store_name="FoodBasics", price=price,
+                                             price_per_unit=price_per_unit, unit=unit, size=size))
+            history_price_list.append(
+                get_history_price_dict(product_name=product_name, store_name="FoodBasics", price=price, unit=unit,
+                                       price_per_unit=price_per_unit))
 
     return product_list, price_list, history_price_list
 
